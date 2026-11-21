@@ -227,8 +227,9 @@ export M2M_CLIENT_SECRET="$M2M_CLIENT_SECRET"
 | **403** avec le rôle affecté | `resource_access` absent du jeton | `fullScopeAllowed` désactivé, ou rôle affecté au mauvais sujet (client ≠ service account) |
 | **401** `invalid_token` en aval | issuer/audience | le service valide `http://localhost:8080/realms/bzhcamp` ; si `KEYCLOAK_AUDIENCE` est renseigné, le mapper d'audience doit exister |
 | Modification du realm **sans effet** | `--import-realm` ne rejoue pas sur une base existante | `docker compose down -v` (destructif) ou `apply-m2m.sh` (non destructif) |
+| `mvn spring-boot:run` : `UnsupportedClassVersionError ... compiled by a more recent version ... recognizes class file versions up to 55.0` | `mvn` tourne sous JDK 11 (classfile 55) ; ces modules exigent JDK 17 (classfile 61, Spring Boot 3.3) | `export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home` avant `mvn spring-boot:run`, dans **chaque** terminal |
 | Spring : `IllegalArgumentException: clientSecret cannot be empty` | `M2M_CLIENT_SECRET` non exporté | exporter la variable avant `mvn spring-boot:run` |
-| Spring : `NoUniqueBeanDefinitionException: WebClient` | deux beans `WebClient` | `webClient` est `@Primary` ; injecter l'autre par `@Qualifier("m2mWebClient")` |
+| Spring : `IllegalStateException: Impossible d'obtenir un jeton client_credentials` | secret erroné ou service accounts désactivé côté Keycloak | message volontairement explicite — voir `M2mPlanetsService.machineAccessToken()` ; vérifier `M2M_CLIENT_SECRET` et `apply-m2m.sh` |
 
 ---
 
